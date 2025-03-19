@@ -64,7 +64,7 @@ AddClassPostConstruct("widgets/invslot", function(InvSlot)
 	                -- HELLO
 	                local hud = self.owner.HUD
 	                hud.takehowmany = hud:AddChild(TakeHowManySlider(container_item, slot_number, container, config))
-	                hud.takehowmany:SetPosition(TheInput:GetScreenPosition()+Vector3(0,50,0))
+	                hud.takehowmany:SetPosition(TheInput:GetScreenPosition()+Vector3(0,80,0))
 	                --container:TakeActiveItemFromHalfOfSlot(slot_number)
 	                TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/click_object")
 	            else

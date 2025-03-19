@@ -63,12 +63,12 @@ function TakeHowManySlider:OnControl(control, down)
 end
 
 function TakeHowManySlider:Scroll(up)
-    local time = GetTime()
+    local time = GetStaticTime()
     local delta = time - self.lastscrolltime
     if self.config.fast_scrolling and delta < .07 then
         self.fastscrolls = self.fastscrolls + 1
         if self.fastscrolls >= 2 then
-            delta = 2
+            delta = 1 + math.floor(self.maxtakecount/30)
         else
             delta = 1
         end

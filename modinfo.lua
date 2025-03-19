@@ -26,7 +26,7 @@ configuration_options = {
 			{description = "Disabled", data = false},
 		},
 		default = true,
-		hover = "If enabled, the mod will change the take amount number for twice as much if you scroll fast enough.",
+		hover = "If enabled, the mod will change the take amount faster if you scroll quickly enough.",
 	},
 
 	{
