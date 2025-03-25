@@ -99,7 +99,7 @@ function TakeHowManySlider:OnUpdate(dt)
         return
     end
 
-    local newmaxtakecount = math.min(GetStackSize(self.item), self.item.replica.stackable and self.item.replica.stackable:MaxSize())
+    local newmaxtakecount = math.min(GetStackSize(self.item), self.item.replica.stackable and self.item.replica.stackable:OriginalMaxSize())
     if newmaxtakecount ~= self.maxtakecount then
         self.maxtakecount = newmaxtakecount
         self.takecount = math.min(self.takecount, newmaxtakecount)
