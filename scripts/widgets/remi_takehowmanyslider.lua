@@ -10,7 +10,7 @@ local TakeHowManySlider = Class(Widget, function(self, item, slot, container, co
     self.item = item
     self.slot = slot
     self.container = container.inst ~= ThePlayer and container.inst or nil
-    self.maxtakecount = math.min(GetStackSize(item), item.replica.stackable and item.replica.stackable:MaxSize())
+    self.maxtakecount = math.min(GetStackSize(item), item.replica.stackable and item.replica.stackable:OriginalMaxSize())
     self.takecount = math.floor(self.maxtakecount/2)
     self.lastscrolltime = -999
     self.fastscrolls = 0
