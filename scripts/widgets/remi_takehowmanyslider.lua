@@ -3,9 +3,58 @@ local Text = require "widgets/text"
 local Widget = require "widgets/widget"
 local TEMPLATES = require "widgets/redux/templates"
 
+
+local INV_CONTROL_HANDLERS = {
+    one_full = function(self, control)
+        if control == CONTROL_INV_1 then
+            TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/toggle_off")
+            self.takecount = 1
+            self:UpdateNumber()
+        elseif control == CONTROL_INV_2 then
+            TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/toggle_on")
+            self.takecount = self.maxtakecount
+            self:UpdateNumber()
+        end
+    end,
+    one_half_full = function(self, control)
+        if control == CONTROL_INV_1 then
+            TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/toggle_off")
+            self.takecount = 1
+            self:UpdateNumber()
+        elseif control == CONTROL_INV_2 then
+            local newtakecount = math.floor(self.maxtakecount/2)
+            if newtakecount == self.takecount then return true end
+            TheFrontEnd:GetSound():PlaySound(self.takecount > newtakecount and "dontstarve/HUD/toggle_off" or "dontstarve/HUD/toggle_on")
+            self.takecount = newtakecount
+            self:UpdateNumber()
+        elseif control == CONTROL_INV_3 then
+            TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/toggle_on")
+            self.takecount = self.maxtakecount
+            self:UpdateNumber()
+        end
+    end,
+    set_exact = function(self, control)
+        local digit = control - CONTROL_INV_1 + 1
+        self.takecount = math.min(digit, self.maxtakecount)
+        self:UpdateNumber()
+    end,
+    typing = function(self, control)
+        local digit = control - CONTROL_INV_1 + 1
+        if self.typing then
+            self.takecount = math.min(self.takecount*10+digit, self.maxtakecount)
+        else
+            self.takecount = math.min(digit, self.maxtakecount)
+        end
+        self.typing = true
+        self:UpdateNumber()
+    end,
+}
+
 local TakeHowManySlider = Class(Widget, function(self, item, slot, container, config)
     Widget._ctor(self, "TakeHowManySlider")
     self.config = config
+
+    self.HandleInvControl = INV_CONTROL_HANDLERS[config.inv_handler]
 
     self.item = item
     self.slot = slot
@@ -14,6 +63,7 @@ local TakeHowManySlider = Class(Widget, function(self, item, slot, container, co
     self.takecount = math.floor(self.maxtakecount/2)
     self.lastscrolltime = -999
     self.fastscrolls = 0
+    self.typing = false
 
     local root = self:AddChild(Widget("root"))
 
@@ -43,19 +93,15 @@ function TakeHowManySlider:OnControl(control, down)
             self:Kill()
             takehowmany_suppress_inv = false
             return true
-        elseif control == CONTROL_ZOOM_IN or control == CONTROL_ZOOM_OUT then
+        end
+    else
+        if control == CONTROL_ZOOM_IN or control == CONTROL_ZOOM_OUT then
             self:Scroll(control == CONTROL_ZOOM_IN)
+            self.typing = false
             self:UpdateNumber()
             return true
-        elseif control == CONTROL_INV_1 then
-            self.takecount = 1
-            self:UpdateNumber()
-            TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/toggle_off")
-            return true
-        elseif control == CONTROL_INV_2 then
-            self.takecount = self.maxtakecount
-            self:UpdateNumber()
-            TheFrontEnd:GetSound():PlaySound("dontstarve/HUD/toggle_on")
+        elseif control >= CONTROL_INV_1 and control <= CONTROL_INV_10 then
+            self:HandleInvControl(control)
             return true
         end
     end
@@ -68,7 +114,7 @@ function TakeHowManySlider:Scroll(up)
     if self.config.fast_scrolling and delta < .07 then
         self.fastscrolls = self.fastscrolls + 1
         if self.fastscrolls >= 2 then
-            delta = 1 + math.floor(self.maxtakecount/30)
+            delta = 1 + math.min(math.floor(self.maxtakecount/30),10)
         else
             delta = 1
         end
@@ -90,6 +136,7 @@ end
 
 function TakeHowManySlider:UpdateNumber()
     self.number:SetString(tostring(self.takecount))
+    if self.typing then self.number:SetColour(1,1,0,1) else self.number:SetColour(1,1,1,1) end
 end
 
 function TakeHowManySlider:OnUpdate(dt)

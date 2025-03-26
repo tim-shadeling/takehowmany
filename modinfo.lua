@@ -1,7 +1,7 @@
 name = "Take How Many?"
 description = "Allows you to take any amount of item from stack instead of just half.\nAdjust the number by scrolling mouse wheel. Press Inv 1 or Inv 2 to set the number to smallest or largest possible values respectively."
 author = "Remi"
-version = "0.1.1"
+version = "0.2"
 
 priority = 1e308
 
@@ -49,6 +49,17 @@ configuration_options = {
 		hover = "Select the desired scale for the mod's exclusive widget.",
 	},
 
-
+	{
+		name = "inv_handler",
+		label = "Inv keys handling",
+		options = {
+			{description = "One/Full", 			data = "one_full",		hover = "Press Inv 1 to set take amount to 1, or Inv 2 to set it to max."},
+			{description = "One/Half/Full", 	data = "one_half_full",	hover = "Press Inv 1 to set take amount to 1, Inv 2 for half, Inv 3 for max."},
+			{description = "Set to the number", data = "set_exact",		hover = "Inv keys will set take amount to their corresponding number."},
+			{description = "Type the amount", 	data = "typing",		hover = "Use Inv keys to type the amount you need."},
+		},
+		default = "one_full",
+		hover = "Select the desired way for handling inventory keys 1 to 10.",
+	},
 
 }
