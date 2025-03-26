@@ -34,16 +34,16 @@ local INV_CONTROL_HANDLERS = {
         end
     end,
     set_exact = function(self, control)
-        local digit = control - CONTROL_INV_1 + 1
-        self.takecount = math.min(digit, self.maxtakecount)
+        local number = control - CONTROL_INV_1 + 1
+        self.takecount = math.min(number, self.maxtakecount)
         self:UpdateNumber()
     end,
     typing = function(self, control)
-        local digit = control - CONTROL_INV_1 + 1
+        local digit = (control - CONTROL_INV_1 + 1)%10
         if self.typing then
-            self.takecount = math.min(self.takecount*10+digit, self.maxtakecount)
+            self.takecount = math.clamp(self.takecount*10+digit, 1, self.maxtakecount)
         else
-            self.takecount = math.min(digit, self.maxtakecount)
+            self.takecount = math.clamp(digit, 1, self.maxtakecount)
         end
         self.typing = true
         self:UpdateNumber()

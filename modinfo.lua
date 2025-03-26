@@ -1,7 +1,7 @@
 name = "Take How Many?"
 description = "Allows you to take any amount of item from stack instead of just half.\nAdjust the number by scrolling mouse wheel. Press Inv 1 or Inv 2 to set the number to smallest or largest possible values respectively."
 author = "Remi"
-version = "0.2"
+version = "0.2.1"
 
 priority = 1e308
 
