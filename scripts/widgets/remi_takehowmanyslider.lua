@@ -3,6 +3,27 @@ local Text = require "widgets/text"
 local Widget = require "widgets/widget"
 local TEMPLATES = require "widgets/redux/templates"
 
+local lang = LanguageTranslator.defaultlang or "en"
+local languages =
+{
+    zh = "zh", -- Chinese for Steam
+    zhr = "zh", -- Chinese for WeGame
+    ch = "zh", -- Chinese mod
+    chs = "zh", -- Chinese mod
+    sc = "zh", -- simple Chinese
+    zht = "zh", -- traditional Chinese for Steam
+	tc = "zh", -- traditional Chinese
+	cht = "zh", -- Chinese mod
+}
+
+if languages[lang] ~= nil then
+    lang = languages[lang]
+else
+    lang = "en"
+end
+
+local chinese = lang == "zh"
+local TITLE_STRING = chinese and "拿多少？" or "Take how many?"
 
 local INV_CONTROL_HANDLERS = {
     one_full = function(self, control)
@@ -74,7 +95,7 @@ local TakeHowManySlider = Class(Widget, function(self, item, slot, container, co
 
     self.filler = root:AddChild(TEMPLATES.BackgroundTint(0.001))
 
-    self.title = root:AddChild(Text(BODYTEXTFONT, 25, "Take how many?", UICOLOURS.WHITE))
+    self.title = root:AddChild(Text(BODYTEXTFONT, 25, TITLE_STRING, UICOLOURS.WHITE))
     self.title:SetPosition(0,25,0)
     self.number = root:AddChild(Text(HEADERFONT, 40, tostring(self.takecount), UICOLOURS.WHITE))
     self.number:SetPosition(0,-15,0)
