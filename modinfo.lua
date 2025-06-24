@@ -1,5 +1,6 @@
 ---@diagnostic disable: lowercase-global
 local function en_zh(en, zh)
+	if zh == "" then return en end
     local languages =
     {
         zh = "zh", -- Chinese for Steam
@@ -20,7 +21,7 @@ description = en_zh(
 	"Allows you to take any amount of item from stack instead of just half.\nAdjust the number by scrolling mouse wheel. Press Inv 1 or Inv 2 to set the number to smallest or largest possible values respectively.",
 	"允许你从堆叠中拿出任意数量的物品，而不仅仅是一半。\n使用鼠标滚轮调整取出数量。按下物品栏数字键1或2，可快速将数量设置为最小或最大值。")
 author = "Remi"
-version = "0.2.2"
+version = "0.3"
 
 priority = 1e308
 
@@ -74,6 +75,51 @@ configuration_options = {
 		),
 	},
 
+	{ -- new, needs translation
+		name = "sound_volume",
+		label = en_zh("Sound volume", ""),
+		options = {
+			{description =   "0%", data =   0},
+			{description =  "10%", data =  .1},
+			{description =  "20%", data =  .2},
+			{description =  "30%", data =  .3},
+			{description =  "40%", data =  .4},
+			{description =  "50%", data =  .5},
+			{description =  "60%", data =  .6},
+			{description =  "70%", data =  .7},
+			{description =  "80%", data =  .8},
+			{description =  "90%", data =  .9},
+			{description = "100%", data = 1.0},
+		},
+		default = 1.0,
+		hover = en_zh(
+			"Select the desired volume for sounds played by the mod's widget.",
+			""
+		),
+	},
+
+	{ -- new, needs translation
+		name = "lmb_handler",
+		label = en_zh("LMB handling", ""),
+		options = {
+			{
+				description = en_zh("Hold and release", ""), 
+				data = "hold_release",
+				hover = en_zh("Click and hold LMB to start, release to finish.", ""),
+			},
+			{
+				description = en_zh("Click and click again", ""), 
+				data = "click_click",
+				hover = en_zh("Click LMB to start, click again to finish.", ""),
+			},
+		},
+		default = "hold_release",
+		hover = en_zh(
+			"Select the desired way for handling LMB.",
+			""
+		),
+	},
+
 	{
 		name = "inv_handler",
 		label = en_zh("Inv keys handling", "物品栏数字键模式"),
@@ -100,6 +146,9 @@ configuration_options = {
 			},
 		},
 		default = "one_full",
-		hover = en_zh("Select the desired way for handling inventory keys 1 to 10.", "选择如何使用物品栏数字键（1~10）设置数量。"),
+		hover = en_zh(
+			"Select the desired way for handling inventory keys 1 to 10.", 
+			"选择如何使用物品栏数字键（1~10）设置数量。"
+		),
 	},
 }

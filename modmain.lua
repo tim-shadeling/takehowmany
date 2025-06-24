@@ -6,6 +6,8 @@ local TakeHowManySlider = require "widgets/remi_takehowmanyslider"
 local config = {
 	fast_scrolling = GetModConfigData("fast_scrolling"),
 	scale = GetModConfigData("widget_scale"),
+	sound_volume = GetModConfigData("sound_volume"), 
+	lmb_handler = GetModConfigData("lmb_handler"), 
 	inv_handler = GetModConfigData("inv_handler"),
 }
 
