@@ -75,9 +75,9 @@ configuration_options = {
 		),
 	},
 
-	{ -- new, needs translation
+	{
 		name = "sound_volume",
-		label = en_zh("Sound volume", ""),
+		label = en_zh("Sound volume", "音效音量"),
 		options = {
 			{description =   "0%", data =   0},
 			{description =  "10%", data =  .1},
@@ -94,29 +94,29 @@ configuration_options = {
 		default = 1.0,
 		hover = en_zh(
 			"Select the desired volume for sounds played by the mod's widget.",
-			""
+			"选择此模组小部件播放音效时的音量大小"
 		),
 	},
 
-	{ -- new, needs translation
+	{
 		name = "lmb_handler",
-		label = en_zh("LMB handling", ""),
+		label = en_zh("LMB handling", "鼠标左键操作方式"),
 		options = {
 			{
-				description = en_zh("Hold and release", ""), 
+				description = en_zh("Hold and release", "按住并松开"),
 				data = "hold_release",
-				hover = en_zh("Click and hold LMB to start, release to finish.", ""),
+				hover = en_zh("Click and hold LMB to start, release to finish.", "按住鼠标左键开始，松开结束"),
 			},
 			{
-				description = en_zh("Click and click again", ""), 
+				description = en_zh("Click and click again", "点击并再次点击"),
 				data = "click_click",
-				hover = en_zh("Click LMB to start, click again to finish.", ""),
+				hover = en_zh("Click LMB to start, click again to finish.", "点击鼠标左键开始，再次点击结束"),
 			},
 		},
 		default = "hold_release",
 		hover = en_zh(
 			"Select the desired way for handling LMB.",
-			""
+			"选择你希望的鼠标左键操作方式"
 		),
 	},
 
