@@ -21,7 +21,7 @@ description = en_zh(
 	"Allows you to take any amount of item from stack instead of just half.\nAdjust the number by scrolling mouse wheel. Press Inv 1 or Inv 2 to set the number to smallest or largest possible values respectively.",
 	"允许你从堆叠中拿出任意数量的物品，而不仅仅是一半。\n使用鼠标滚轮调整取出数量。按下物品栏数字键1或2，可快速将数量设置为最小或最大值。")
 author = "Remi"
-version = "0.3a"
+version = "0.4"
 
 priority = 1e308
 
@@ -37,7 +37,122 @@ server_only_mod = false
 icon_atlas = "modicon.xml"
 icon = "modicon.tex"
 
+local keys = {
+    {description = en_zh("None", "无"), data = -1},
+    {description = "F1", data = 282},
+    {description = "F2", data = 283},
+    {description = "F3", data = 284},
+    {description = "F4", data = 285},
+    {description = "F5", data = 286},
+    {description = "F6", data = 287},
+    {description = "F7", data = 288},
+    {description = "F8", data = 289},
+    {description = "F9", data = 290},
+    {description = "F10", data = 291},
+    {description = "F11", data = 292},
+    {description = "F12", data = 293},
+    {description = "Z", data = 122},
+    {description = "X", data = 120},
+    {description = "C", data = 99},
+    {description = "V", data = 118},
+    {description = "B", data = 98},
+    {description = "N", data = 110},
+    {description = "M", data = 109},
+    {description = "A", data = 97},
+    {description = "S", data = 115},
+    {description = "D", data = 100},
+    {description = "F", data = 102},
+    {description = "G", data = 103},
+    {description = "H", data = 104},
+    {description = "J", data = 106},
+    {description = "K", data = 107},
+    {description = "L", data = 108},
+    {description = "Q", data = 113},
+    {description = "W", data = 119},
+    {description = "E", data = 101},
+    {description = "R", data = 114},
+    {description = "T", data = 116},
+    {description = "Y", data = 121},
+    {description = "U", data = 117},
+    {description = "I", data = 105},
+    {description = "O", data = 111},
+    {description = "P", data = 112},
+    {description = "Num 1", data = 257},
+    {description = "Num 2", data = 258},
+    {description = "Num 3", data = 259},
+    {description = "Num 4", data = 260},
+    {description = "Num 5", data = 261},
+    {description = "Num 6", data = 262},
+    {description = "Num 7", data = 263},
+    {description = "Num 8", data = 264},
+    {description = "Num 9", data = 265},
+    {description = "Num 0", data = 256},
+    {description = "Num -", data = 269},
+    {description = "Num +", data = 270},
+    {description = "Num *", data = 268},
+    {description = "Num /", data = 267},
+    {description = "Num .", data = 266},
+    {description = '\238\132\130', data = 1002}, -- mouse wheel
+    {description = '\238\132\131', data = 1005}, -- mouse 4
+    {description = '\238\132\132', data = 1006}, -- mouse 5
+    {description = en_zh("None", "无"), data = -1},
+}
+
+--local keyboard_scrolling_speed_hover = en_zh([[Enter a number that will define how quickly the take amount will change, when holding a hotkey.
+
+--The value is measured in FRAMES (30 frames = 1 second), and must be a positive integer.
+--For example, a value of 3 will cause hotkeys to increase/decrease the take amount 10 times per second while held.
+
+--Default is 7]]
+
 configuration_options = {
+	{ -- NEW, MACHINE TRANSLATED
+		name = "scroll_with_mouse",
+		label = en_zh("SCROLL WITH MOUSE", "用鼠标滚轮滚动"),
+		options = {
+			{
+				description = en_zh("Yes", "是"),
+				data = true, 
+				-- no hover
+			},
+			{
+				description = en_zh("No, use hotkeys", "不，使用快捷键。"),
+				data = false, 
+				hover = en_zh("Configure them right below.", "请在下一个设置中选择它们。"),
+			},
+		},
+		default = true,
+		hover = en_zh(
+			"Choose whether you'd like to use the mouse wheel or hotkeys to change the take amount.", 
+			"选择您是想使用鼠标滚轮还是快捷键来更改拾取物品的数量。"
+		),
+	},
+
+	{ -- NEW, MACHINE TRANSLATED
+		name = "key_scroll_up",
+		label = en_zh("Scroll Up key", "向上滚动快捷键"),
+		options = keys,
+		default = 101,
+		hover = en_zh(
+			"WORKS ONLY IF SCROLLING WITH HOTKEYS\nChoose the key to increase the take amount.", 
+			"仅在使用快捷键时有效\n选择按键以增加拾取物品的数量。"
+		),
+		is_keybind = true,
+	},	
+
+	{ -- NEW, MACHINE TRANSLATED
+		name = "key_scroll_down",
+		label = en_zh("Scroll Down key", ""),
+		options = keys,
+		default = 113,
+		hover = en_zh(
+			"WORKS ONLY IF SCROLLING WITH HOTKEYS\nChoose the key to decrease the take amount.", 
+			"仅在使用快捷键时有效\n选择按键以减少可拾取物品的数量。"
+		),
+		is_keybind = true,
+	},
+
+	--[[
 	{
 		name = "fast_scrolling",
 		label = en_zh("Fast scrolling", "快速滚动"),
@@ -51,6 +166,16 @@ configuration_options = {
 			"启用后，当你足够快地滚动鼠标时，取出数量将加快变化。"
 		),
 	},
+
+	{
+		name = "keyboard_scrolling_speed",
+		label = "Hotkey scroll rate",
+		options = {{description = "Need mod!", data = "7", hover = "You need Configs Extended in order to edit this."}},
+		default = "7",
+		hover = keyboard_scrolling_speed_hover,
+		is_text_config = true,
+	},
+	--]]
 
 	{
 		name = "widget_scale",

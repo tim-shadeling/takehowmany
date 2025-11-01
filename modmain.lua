@@ -1,15 +1,27 @@
 GLOBAL.setmetatable(env, {__index = function(a, b) return GLOBAL.rawget(GLOBAL, b) end})
-rawset(GLOBAL, "takehowmany_suppress_inv", false)
 
 local TakeHowManySlider = require "widgets/remi_takehowmanyslider"
+local takehowmany = nil
 
-local config = {
-	fast_scrolling = GetModConfigData("fast_scrolling"),
-	scale = GetModConfigData("widget_scale"),
-	sound_volume = GetModConfigData("sound_volume"), 
-	lmb_handler = GetModConfigData("lmb_handler"), 
-	inv_handler = GetModConfigData("inv_handler"),
-}
+local config
+local function Reconfigure(silent)
+	config = {
+		scroll_with_mouse = GetModConfigData("scroll_with_mouse"),
+		key_scroll_up = GetModConfigData("key_scroll_up"),
+		key_scroll_down = GetModConfigData("key_scroll_down"),
+		-- fast_scrolling = GetModConfigData("fast_scrolling"),
+		--keyboard_scrolling_speed = math.max(tonumber(GetModConfigData("keyboard_scrolling_speed") or 1), 1),
+		scale = GetModConfigData("widget_scale"),
+		sound_volume = GetModConfigData("sound_volume"), 
+		lmb_handler = GetModConfigData("lmb_handler"), 
+		inv_handler = GetModConfigData("inv_handler"),
+	}
+
+	if takehowmany and takehowmany.inst:IsValid() then takehowmany:Destroy() end
+
+	if not silent and ThePlayer then ThePlayer.SoundEmitter:PlaySound("dontstarve/HUD/Together_HUD/learn_map") end
+end
+Reconfigure(true)
 
 AddClassPostConstruct("widgets/invslot", function(InvSlot)
 	function InvSlot:Click(stack_mod)
@@ -65,9 +77,9 @@ AddClassPostConstruct("widgets/invslot", function(InvSlot)
 	                container_item.replica.stackable ~= nil and
 	                container_item.replica.stackable:IsStack() then
 	                -- HELLO
-	                local hud = self.owner.HUD
-	                hud.takehowmany = hud:AddChild(TakeHowManySlider(container_item, slot_number, container, config))
-	                hud.takehowmany:SetPosition(TheInput:GetScreenPosition()+Vector3(0,80,0))
+					takehowmany = TakeHowManySlider(container_item, slot_number, container, config)
+					takehowmany.root:SetPosition(self:GetWorldPosition()+Vector3(0,80,0))
+					TheFrontEnd:PushScreen(takehowmany)
 	                --container:TakeActiveItemFromHalfOfSlot(slot_number)
 	                TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/click_object")
 	            else
@@ -109,29 +121,24 @@ AddClassPostConstruct("widgets/invslot", function(InvSlot)
 	end
 end)
 
---------------------------------- Taken from Item Scroller --------------------------------------
--- ♥ :D
-local function IsCursorOnHUD()
-	local input = TheInput
-	return input.hoverinst and input.hoverinst.Transform == nil
-end
-local function playercontroller_postinit(self)
-	local old_DoCameraControl = self.DoCameraControl
-	function self:DoCameraControl()
-		if not ((TheInput:IsControlPressed(CONTROL_ZOOM_IN) or TheInput:IsControlPressed(CONTROL_ZOOM_OUT)) and IsCursorOnHUD() ) then
-			if old_DoCameraControl ~= nil then old_DoCameraControl(self) end
-		end
-	end
-end
-AddComponentPostInit("playercontroller",playercontroller_postinit)
----------------------------------- End of borrowed code -----------------------------------------
+-- There used to be a chunk of code borrowed from Item Scroller (13 lines).
+-- It has served well for a very long time ♥ :D
 
-AddClassPostConstruct("screens/playerhud", function(self)
-	local oldfn = self.OnControl
-	self.OnControl = function(self, control, down)
-		if control >= _G.CONTROL_INV_1 and control <= _G.CONTROL_INV_10 and GLOBAL.takehowmany_suppress_inv and self.takehowmany then
-			return self.takehowmany:OnControl(control, down)
+AddUserCommand("thmcfg", { -- Take How Many ConFiG lul
+	prettyname = "Take How Many Config",
+	desc = "Reconfigure the mod without having to reload the game!",
+	permission = COMMAND_PERMISSION.USER,
+	slash = true,
+	usermenu = false,
+	servermenu = false,
+	params = {},
+	vote = false,
+	localfn = function() -- params, caller
+		local success, result = pcall(function() return require "widgets/remi_newmodconfigurationscreen" end)
+		if success then
+			TheFrontEnd:PushScreen(result(modname, true, Reconfigure))
+		else
+			response("Failed to open the configuration panel", result)
 		end
-		return oldfn(self, control, down)
-	end
-end)
+	end,
+})
