@@ -21,7 +21,7 @@ description = en_zh(
 	"Allows you to take any amount of item from stack instead of just half.\nAdjust the number by scrolling mouse wheel. Press Inv 1 or Inv 2 to set the number to smallest or largest possible values respectively.",
 	"允许你从堆叠中拿出任意数量的物品，而不仅仅是一半。\n使用鼠标滚轮调整取出数量。按下物品栏数字键1或2，可快速将数量设置为最小或最大值。")
 author = "Remi"
-version = "0.4"
+version = "0.4.1"
 
 priority = 1e308
 
@@ -142,7 +142,7 @@ configuration_options = {
 
 	{ -- NEW, MACHINE TRANSLATED
 		name = "key_scroll_down",
-		label = en_zh("Scroll Down key", ""),
+		label = en_zh("Scroll Down key", "向下滚动快捷键"),
 		options = keys,
 		default = 113,
 		hover = en_zh(

@@ -118,7 +118,7 @@ local TakeHowManySlider = Class(Screen, function(self, item, slot, container, _c
 	self.clicked_once = false
 
 	self:SetScaleMode(SCALEMODE_PROPORTIONAL)
-	local root = self:AddChild(Widget("root"))
+	local root = Widget("root") -- root is now supposed to be child of player's hud
 
 	self.bg = root:AddChild(TEMPLATES.RectangleWindow(80,80)) -- Image("images/global.xml", "square.tex")
 	--self.bg:SetSize(80,80)
@@ -248,6 +248,7 @@ function TakeHowManySlider:OnUpdate(dt)
 end
 
 function TakeHowManySlider:Destroy()
+	self.root:Kill()
 	TheFrontEnd:PopScreen(self)
 end
 
