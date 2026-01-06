@@ -56,7 +56,7 @@ AddClassPostConstruct("widgets/invslot", function(InvSlot)
 				--Take active item from slot
 				local takecount
 				if inventory and inventory ~= container then -- Variable character cannot be nil from above.
-					local maxtakecountfunction = GetDesiredMaxTakeCountFunction(container_item.prefab)
+					local maxtakecountfunction = _G.GetDesiredMaxTakeCountFunction(container_item.prefab)
 					if maxtakecountfunction then
 						takecount = maxtakecountfunction(character, inventory, container_item, container)
 					end
