@@ -4,24 +4,25 @@ local TakeHowManySlider = require "widgets/remi_takehowmanyslider"
 local takehowmany = nil
 
 local config
-local function Reconfigure(silent)
+local function Reconfigure(settings, silent)
+	local getconfig = settings and function(k) return settings[k] end or GetModConfigData
 	config = {
-		scroll_with_mouse = GetModConfigData("scroll_with_mouse"),
-		key_scroll_up = GetModConfigData("key_scroll_up"),
-		key_scroll_down = GetModConfigData("key_scroll_down"),
-		-- fast_scrolling = GetModConfigData("fast_scrolling"),
-		--keyboard_scrolling_speed = math.max(tonumber(GetModConfigData("keyboard_scrolling_speed") or 1), 1),
-		scale = GetModConfigData("widget_scale"),
-		sound_volume = GetModConfigData("sound_volume"), 
-		lmb_handler = GetModConfigData("lmb_handler"), 
-		inv_handler = GetModConfigData("inv_handler"),
+		scroll_with_mouse = getconfig("scroll_with_mouse"),
+		key_scroll_up = getconfig("key_scroll_up"),
+		key_scroll_down = getconfig("key_scroll_down"),
+		-- fast_scrolling = getconfig("fast_scrolling"),
+		--keyboard_scrolling_speed = math.max(tonumber(getconfig("keyboard_scrolling_speed") or 1), 1),
+		scale = getconfig("widget_scale"),
+		sound_volume = getconfig("sound_volume"), 
+		lmb_handler = getconfig("lmb_handler"), 
+		inv_handler = getconfig("inv_handler"),
 	}
 
 	if takehowmany and takehowmany.inst:IsValid() then takehowmany:Destroy() end
 
-	if not silent and ThePlayer then ThePlayer.SoundEmitter:PlaySound("dontstarve/HUD/Together_HUD/learn_map") end
+	if not silent and TheFocalPoint then TheFocalPoint.SoundEmitter:PlaySound("dontstarve/HUD/Together_HUD/learn_map") end
 end
-Reconfigure(true)
+Reconfigure(nil, true)
 
 AddClassPostConstruct("widgets/invslot", function(InvSlot)
 	function InvSlot:Click(stack_mod)
@@ -56,7 +57,7 @@ AddClassPostConstruct("widgets/invslot", function(InvSlot)
 				--Take active item from slot
 				local takecount
 				if inventory and inventory ~= container then -- Variable character cannot be nil from above.
-					local maxtakecountfunction = _G.GetDesiredMaxTakeCountFunction(container_item.prefab)
+					local maxtakecountfunction = GetDesiredMaxTakeCountFunction(container_item.prefab)
 					if maxtakecountfunction then
 						takecount = maxtakecountfunction(character, inventory, container_item, container)
 					end
@@ -143,3 +144,8 @@ AddUserCommand("thmcfg", { -- Take How Many ConFiG lul
 		end
 	end,
 })
+--
+AddGamePostInit(function()
+	local mods = REMI_RECONFIGURABLE_MODS
+	if mods then mods[modname] = Reconfigure end
+end)
