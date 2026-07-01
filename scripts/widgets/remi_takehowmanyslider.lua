@@ -4,6 +4,8 @@ local Widget = require "widgets/widget"
 local Screen = require "widgets/screen"
 local TEMPLATES = require "widgets/redux/templates"
 
+local InventoryReplica = require "components/inventory_replica"
+
 local lang = LanguageTranslator.defaultlang or "en"
 local languages =
 {
@@ -25,6 +27,7 @@ end
 
 local chinese = lang == "zh"
 local TITLE_STRING = chinese and "拿多少？" or "Take how many?"
+local TITLE_STRING_MOVE = chinese and "拿多少？" or "Move how many?"
 
 local LMB_HANDLERS = {
 	hold_release = function(self, key, down)
@@ -89,7 +92,7 @@ local function calc_keyboard_scroll_speed(maxtakecount)
 end
 
 local config, key_scroll_up, key_scroll_down
-local TakeHowManySlider = Class(Screen, function(self, item, slot, container, _config)
+local TakeHowManySlider = Class(Screen, function(self, owner, item, slot, container, _config, move_dest) -- yeah it's not a slider actually hehe
 	Screen._ctor(self, "TakeHowManySlider")
 
 	config = _config
@@ -105,9 +108,11 @@ local TakeHowManySlider = Class(Screen, function(self, item, slot, container, _c
 	self.pressed_num_keys = {}
 	self.HandleLMB = LMB_HANDLERS[config.lmb_handler]
 
+	self.owner = owner
 	self.item = item
 	self.slot = slot
-	self.container = container.inst ~= ThePlayer and container.inst or nil
+	self.container = container -- this is inventory replica OR container replica
+	self.move_dest = move_dest
 	self.stackable = item.replica.stackable
 	self.maxtakecount = math.min(self.stackable:StackSize(), self.stackable:OriginalMaxSize())
 	self.takecount = math.floor(self.maxtakecount/2)
@@ -127,7 +132,7 @@ local TakeHowManySlider = Class(Screen, function(self, item, slot, container, _c
 
 	self.filler = root:AddChild(TEMPLATES.BackgroundTint(0.001))
 
-	self.title = root:AddChild(Text(BODYTEXTFONT, 25, TITLE_STRING, UICOLOURS.WHITE))
+	self.title = root:AddChild(Text(BODYTEXTFONT, 25, move_dest and TITLE_STRING_MOVE or TITLE_STRING, UICOLOURS.WHITE))
 	self.title:SetPosition(0,25,0)
 	self.number = root:AddChild(Text(HEADERFONT, 40, tostring(self.takecount), UICOLOURS.WHITE))
 	self.number:SetPosition(0,-15,0)
@@ -158,6 +163,11 @@ function TakeHowManySlider:OnMouseButton(button, down, x, y)
 		self:HandleLMB(button, down)
 		return true
 	end
+
+--	if not down and button == MOUSEBUTTON_RIGHT and config.move_on_rmb then
+--		self:TakeAndDestroy(true)
+--		return true
+--	end
 
 	return false
 end
@@ -253,7 +263,64 @@ function TakeHowManySlider:Destroy()
 end
 
 function TakeHowManySlider:TakeAndDestroy()
-	TheNet:SendRPCToServer(RPC.TakeActiveItemFromCountOfSlot, self.slot, self.container, self.takecount) 
+	if self.move_dest then -- move
+		self.container:MoveItemFromCountOfSlot(self.slot, self.move_dest, self.takecount)
+	else -- take
+		-- self.container:TakeActiveItemFromCountOfSlot(self.slot, self.takecount) -- did you know? there's no count parameter in there!
+
+		--[[ -- inventory_replica.lua
+		
+		function Inventory:TakeActiveItemFromCountOfSlot(slot)
+			if self.inst.components.inventory ~= nil then
+				self.inst.components.inventory:TakeActiveItemFromCountOfSlot(slot)
+			elseif self.classified ~= nil then
+				self.classified:TakeActiveItemFromCountOfSlot(slot)
+			end
+		end
+		
+		--]]
+		
+		-- let's work around it i guess
+		if self.container.is_a and self.container:is_a(InventoryReplica) then
+			if self.owner.components.inventory ~= nil then
+				self.owner.components.inventory:TakeActiveItemFromCountOfSlot(self.slot, self.takecount)
+			elseif self.container.classified ~= nil then
+				-- self.container.classified:TakeActiveItemFromCountOfSlot(self.slot, self.takecount) -- did you know? the problems don't end here!
+
+				--[[ -- inventory_classified.lua
+
+				local function TakeActiveItemFromCountOfSlot(inst, slot, count)
+					if not IsBusy(inst) and inst._activeitem == nil then
+						local item = inst:GetItemInSlot(slot)
+						if item ~= nil then
+							local takeitem = SlotItem(item, slot)
+							local stackable = item.replica.stackable
+							local fullstacksize = stackable and (stackable:IsOverStacked() and stackable:OriginalMaxSize() or stackable:StackSize()) or 1
+							count = math.clamp(count, 1, fullstacksize)
+							if stackable and stackable:StackSize() > count then
+								PushNewActiveItem(inst, takeitem, inst, slot)
+								local stacksize = stackable:StackSize()
+								PushStackSize(inst, item, stacksize - count, true, count, false)
+							else
+								PushItemLose(inst, takeitem)
+								PushNewActiveItem(inst, takeitem, inst, slot)
+							end
+							SendRPCToServer(RPC.TakeActiveItemFromCountOfSlot, slot, count) -- !!! incorrect parameter order, container (nil) is missing before count gg rip
+						end
+					end
+				end
+
+				]]
+				-- redoing the whole function is too cumbersome, let's just send the rpc
+				TheNet:SendRPCToServer(RPC.TakeActiveItemFromCountOfSlot, self.slot, nil, self.takecount)
+			end
+		else -- container_replica does have the count parameter btw, safe to use
+			self.container:TakeActiveItemFromCountOfSlot(self.slot, self.takecount)
+		end
+	end
+
+	--TheNet:SendRPCToServer(rpc, self.slot, container, self.takecount) 
+	-- self.inst:DoTaskInTime(0, function() self:Destroy() end)
 	self:Destroy()
 end
 
